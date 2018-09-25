@@ -89,10 +89,10 @@ class EECZTyrant(Peer):
 
         all_peers = set()
         for p in peers:
-            if p.id not in upload_rates:
-                upload_rates[p.id] = 1.
-            if p.id not in download_rates:
-                download_rates[p.id] = 0.
+            if p.id not in self.upload_rates:
+                self.upload_rates[p.id] = 1.
+            if p.id not in self.download_rates:
+                self.download_rates[p.id] = 0.
             all_peers.add(p.id)
 
         peers_unchoked = set()
@@ -101,25 +101,25 @@ class EECZTyrant(Peer):
             # id of peer who I downloaded from
             p = dl.from_id
             peers_unchoked.add(p)
-            download_rates[p] = dl.blocks
-            if p in streak:
-                streak[p][length] = streak[p][length] + 1 if streak[p][l_round] == history.last_round else 1
-                streak[p][l_round] = history.current_round()
-                if streak[p][length] >= self.r:
-                    upload_rates[p] *= (1. - self.gamma)
+            self.download_rates[p] = dl.blocks
+            if p in self.streak:
+                self.streak[p]["length"] = self.streak[p]["length"] + 1 if self.streak[p]["l_round"] == history.last_round else 1
+                self.streak[p]["l_round"] = history.current_round()
+                if self.streak[p]["length"] >= self.r:
+                    self.upload_rates[p] *= (1. - self.gamma)
             else:
-                streak[p] = {l_round: history.current_round(), length: 1}
+                self.streak[p] = {"l_round": history.current_round(), "length": 1}
 
         peers_not_unchoked = all_peers - peers_unchoked
         for p in peers_not_unchoked:
-            if p not in upload_rates:
-                upload_rates[p] = 1
-            upload_rates[p] *= (1. + self.gamma)
+            if p not in self.upload_rates:
+                self.upload_rates[p] = 1
+            self.upload_rates[p] *= (1. + self.gamma)
 
         # store all ratios of download:upload
         rates = {}
         for p in all_peers:
-            rates[p] = download_rates[p]/upload_rates[p]
+            rates[p] = self.download_rates[p]/self.upload_rates[p]
         peers_by_rates = sorted(rates.items(), key=operator.itemgetter(1), reverse=True)
 
         # for i in range(len(peers_by_rates)):
