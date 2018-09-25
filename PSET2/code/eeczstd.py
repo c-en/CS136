@@ -76,15 +76,28 @@ class EECZStd(Peer):
         for req in requests:
             req_received.add(req.requester_id)
         total_bandwidth_rec = {p: 0 for p in req_received}
-        past2rounds = []
+        upload_allocation = {p: 0 for p in req_received}
+        bw = 0
+        pastround = []
         try:
-            past2rounds.extend(history.downloads[-1])
-            past2rounds.extend(history.downloads[-2])
+            pastround.extend(history.downloads[-1])
+            pastround.extend(history.downloads[-2])
         except IndexError:
             pass
-        for dl in past2rounds:
+        for dl in pastround:
             if dl.from_id in req_received:
+                bw += dl.blocks
                 total_bandwidth_rec[dl.from_id] += dl.blocks
+
+        if bw == 0:
+            for p in upload_allocation:
+                upload_allocation[p] = float(self.up_bw) / len(req_received)
+        else:
+            total_up = 0
+            for p in upload_allocation:
+                up = int(total_bandwidth_rec[p] * self.up_bw * 0.9 / bw)
+                upload_allocation[p] = up
+                total_up += up
         peers_by_downloads = sorted(total_bandwidth_rec.items(), key=operator.itemgetter(1), reverse=True)
 
         # select top 3 peers to unchoke + optimistic peer, give each bandwidth/4
