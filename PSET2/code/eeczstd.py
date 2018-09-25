@@ -109,10 +109,3 @@ class EECZStd(Peer):
         uploads = [Upload(self.id, p, self.up_bw/len(unchoked)) for p in unchoked]
 
         return uploads
-
-
-
-
-
-            
-        return uploads
