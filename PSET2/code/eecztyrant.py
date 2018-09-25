@@ -25,7 +25,7 @@ class EECZTyrant(Peer):
         self.upload_rates = {}
         self.streak = {}
         self.r = 3
-        self.n = 4
+        self.opt_thresh = self.up_bw/4
     
     def requests(self, peers, history):
         """
@@ -103,7 +103,7 @@ class EECZTyrant(Peer):
             peers_unchoked.add(p)
             self.download_rates[p] = dl.blocks
             if p in self.streak:
-                self.streak[p]["length"] = self.streak[p]["length"] + 1 if self.streak[p]["l_round"] == history.last_round else 1
+                self.streak[p]["length"] = self.streak[p]["length"] + 1 if self.streak[p]["l_round"] == history.last_round() else 1
                 self.streak[p]["l_round"] = history.current_round()
                 if self.streak[p]["length"] >= self.r:
                     self.upload_rates[p] *= (1. - self.gamma)
@@ -112,17 +112,32 @@ class EECZTyrant(Peer):
 
         peers_not_unchoked = all_peers - peers_unchoked
         for p in peers_not_unchoked:
-            if p not in self.upload_rates:
-                self.upload_rates[p] = 1
-            self.upload_rates[p] *= (1. + self.gamma)
+            self.upload_rates[p] *= (1. + self.alpha)
 
         # store all ratios of download:upload
         rates = {}
         for p in all_peers:
-            rates[p] = self.download_rates[p]/self.upload_rates[p]
+            if self.download_rates[p] != 0:
+                rates[p] = self.download_rates[p]/self.upload_rates[p]
         peers_by_rates = sorted(rates.items(), key=operator.itemgetter(1), reverse=True)
 
-        # for i in range(len(peers_by_rates)):
-
+        total_upload = 0
         uploads = []
+        uploaded_to = set()
+        for p, _ in peers_by_rates:
+            total_upload += int(self.upload_rates[p])
+            if total_upload <= self.up_bw:
+                uploads.append(Upload(self.id, p, int(self.upload_rates[p])))
+                uploaded_to.add(p)
+            else:
+                total_upload -= int(self.upload_rates[p])
+                break
+
+        upload_left = all_peers - uploaded_to
+        while self.up_bw - total_upload > self.opt_thresh and len(upload_left) > 0:
+            p = random.sample(upload_left, 1)[0]
+            upload_left.remove(p)
+            uploads.append(Upload(self.id, p, self.opt_thresh))
+            total_upload += self.opt_thresh
+        
         return uploads
