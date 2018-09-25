@@ -28,6 +28,9 @@ class Dummy(Peer):
 
         This will be called after update_pieces() with the most recent state.
         """
+        print("PEERS ARE HERE *******", peers[0].available_pieces, peers[1])
+        print("HISTORY IS HERE *******", history)
+        1 + 'asdf'
         needed = lambda i: self.pieces[i] < self.conf.blocks_per_piece
         needed_pieces = filter(needed, range(len(self.pieces)))
         np_set = set(needed_pieces)  # sets support fast intersection ops.

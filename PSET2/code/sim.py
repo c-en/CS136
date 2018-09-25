@@ -432,6 +432,7 @@ def parse_agents(args):
 def main(args):
     usage_msg = "Usage:  %prog [options] PeerClass1[,count] PeerClass2[,count] ..."
     parser = OptionParser(usage=usage_msg)
+    print("************************")
 
     def usage(msg):
         print "Error: %s\n" % msg
