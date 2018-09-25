@@ -1,0 +1,5 @@
+ASSUMPTIONS
+
+STANDARD
+Requests are made randomly, weighted by reciprocal of availability
+4 upload slots, each gets at most bandwidth/4, waste the extra
