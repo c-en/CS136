@@ -20,6 +20,7 @@ class EECZStd(Peer):
         print "post_init(): %s here!" % self.id
         self.dummy_state = dict()
         self.dummy_state["cake"] = "lie"
+        self.optimistic_unchoked_peer = -1
     
     def requests(self, peers, history):
         """
@@ -102,8 +103,12 @@ class EECZStd(Peer):
 
         # select top 3 peers to unchoke + optimistic peer, give each bandwidth/4
         unchoked = [p[0] for p in peers_by_downloads[:3]]
+        num_unchoked = len(unchoked)
         try:
-            unchoked.append(random.choice(peers_by_downloads[3:])[0])
+            optimistic_id = random.choice(peers_by_downloads[num_unchoked:])[0]
+            if history.current_round() % 3 == 0:
+                self.optimistic_unchoked_peer = optimistic_id
+            unchoked.append(optimistic_id)
         except IndexError:
             pass
         uploads = [Upload(self.id, p, self.up_bw/len(unchoked)) for p in unchoked]
