@@ -76,14 +76,16 @@ class EECZTyrant(Peer):
         In each round, this will be called after requests().
         """
 
-        req_received = set()
-        for req in requests:
-            req_received.add(req.requester_id)
+        # req_received = set()
+        # for req in requests:
+        #     req_received.add(req.requester_id)
 
         # update rates
         lastround_dl = []
+        tworounds_ul = []
         try:
             lastround_dl = history.downloads[-1]
+            tworounds_ul = history.uploads[-2]
         except IndexError:
             pass
 
@@ -106,6 +108,11 @@ class EECZTyrant(Peer):
                 temp_rates[p] += dl.blocks 
             else:
                 temp_rates[p] = dl.blocks
+
+        # create set of peers uploaded to 2 rounds ago
+        peers_uploaded_to = set()
+        for ul in tworounds_ul:
+            peers_uploaded_to.add(ul.to_id)
             
         for p in temp_rates:
             # update download rates
@@ -121,7 +128,8 @@ class EECZTyrant(Peer):
                 self.streak[p] = {"l_round": history.current_round(), "length": 1}
 
         peers_not_unchoked = all_peers - peers_unchoked
-        for p in peers_not_unchoked:
+        for p in peers_not_unchoked.intersection(peers_uploaded_to):
+            # check two rounds ago
             self.upload_rates[p] *= (1. + self.alpha)
 
         # store all ratios of download:upload
@@ -130,6 +138,9 @@ class EECZTyrant(Peer):
             if self.download_rates[p] != 0:
                 rates[p] = self.download_rates[p]/self.upload_rates[p]
         peers_by_rates = sorted(rates.items(), key=operator.itemgetter(1), reverse=True)
+        print "*******RATES**********"
+        print rates
+        print "*****************"
 
         total_upload = 0
         uploads = []
@@ -142,6 +153,12 @@ class EECZTyrant(Peer):
             else:
                 total_upload -= int(self.upload_rates[p])
                 break
+        print "*******UPLOADS**********"
+        print self.upload_rates
+        print "*****************"
+        print "******DOwnloADS***********"
+        print self.download_rates
+        print "*****************"
 
         upload_left = all_peers - uploaded_to
         while self.up_bw - total_upload > self.opt_thresh and len(upload_left) > 0:
@@ -150,4 +167,7 @@ class EECZTyrant(Peer):
             uploads.append(Upload(self.id, p, self.opt_thresh))
             total_upload += self.opt_thresh
         
+        print "*****************"
+        print uploads
+        print "*****************"
         return uploads
