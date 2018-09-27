@@ -97,11 +97,21 @@ class EECZTyrant(Peer):
 
         peers_unchoked = set()
         # update accordingly for peers who did unchoke me
+        temp_rates = {}
         for dl in lastround_dl:
             # id of peer who I downloaded from
             p = dl.from_id
             peers_unchoked.add(p)
-            self.download_rates[p] = dl.blocks
+            if p in temp_rates:
+                temp_rates[p] += dl.blocks 
+            else:
+                temp_rates[p] = dl.blocks
+            
+        for p in temp_rates:
+            # update download rates
+            self.download_rates[p] = temp_rates[p]
+
+            # update upload rates
             if p in self.streak:
                 self.streak[p]["length"] = self.streak[p]["length"] + 1 if self.streak[p]["l_round"] == history.last_round() else 1
                 self.streak[p]["l_round"] = history.current_round()
