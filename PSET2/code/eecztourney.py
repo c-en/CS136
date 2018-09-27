@@ -18,8 +18,8 @@ from peer import Peer
 class EECZTourney(Peer):
     def post_init(self):
         print "post_init(): %s here!" % self.id
-        self.dummy_state = dict()
-        self.dummy_state["cake"] = "lie"
+        self.needed = len(self.pieces)
+        self.firstpieces = {}
     
     def requests(self, peers, history):
         """
@@ -33,6 +33,11 @@ class EECZTourney(Peer):
         needed = lambda i: self.pieces[i] < self.conf.blocks_per_piece
         needed_pieces = filter(needed, range(len(self.pieces)))
         np_set = set(needed_pieces)  # sets support fast intersection ops.
+        self.needed = len(np_set)
+        if self.needed == len(self.pieces):
+            if len(self.firstpieces) == 0:
+                for peer in peers:
+                    
 
         # sort needed pieces by rarity
         avail_count = {}
@@ -71,6 +76,9 @@ class EECZTourney(Peer):
         """
 
         # measure peers by bandwidth received over past round
+        if self.needed == 0:
+            return []
+
         req_received = set()
         for req in requests:
             req_received.add(req.requester_id)
