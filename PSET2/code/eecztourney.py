@@ -30,6 +30,7 @@ class EECZTourney(Peer):
 
         This will be called after update_pieces() with the most recent state.
         """
+        requests = []
         needed = lambda i: self.pieces[i] < self.conf.blocks_per_piece
         needed_pieces = filter(needed, range(len(self.pieces)))
         np_set = set(needed_pieces)  # sets support fast intersection ops.
@@ -37,7 +38,13 @@ class EECZTourney(Peer):
         if self.needed == len(self.pieces):
             if len(self.firstpieces) == 0:
                 for peer in peers:
-                    
+                    starting_pieces = set(range(len(self.pieces)))
+                    if len(peer.available_pieces) == self.needed:
+                        self.firstpieces[peer] = random.sample(starting_pieces,1)[0]
+                        starting_pieces.remove(self.firstpieces[peer])
+            for peer in self.firstpieces:
+                start_block = self.pieces[self.firstpieces[peer]]
+                requests.append(Request(self.id, peer.id, self.firstpieces[peer], start_block))
 
         # sort needed pieces by rarity
         avail_count = {}
@@ -50,10 +57,12 @@ class EECZTourney(Peer):
                     avail_count[piece] += 1
                 except:
                     avail_count[piece] = 1
+
+        for piece in avail_count:
+            avail_count[piece] /= float(1. + self.pieces[piece] / float(self.conf.blocks_per_piece))
         pieces_by_rarity = sorted(avail_count.items(), key=operator.itemgetter(1))
 
         # start requesting pieces, weighted by rarity
-        requests = []
         for peer in peers:
             possible_requests = [(piece, 1./avail_count[piece]) for piece in isects[peer]]
             req_order = sorted([(r[0], random.random() * r[1]) for r in possible_requests], key=lambda x: x[1])
