@@ -44,15 +44,26 @@ class VCG:
         
         (allocation, just_bids) = zip(*allocated_bids)
 
+        # DP approach to calculating payments
+        # initialize payments to reserve price
+        payments = [reserve]
+        rev = just_bids[::-1]
+        for i, bids in enumerate(rev[1:]):
+            j = i+1
+            payment = (slot_clicks[-(j+1)] - slot_clicks[-j]) * just_bids[-j] + payments[-1]
+            payments.append(payment)
+        payments = payments[::-1]
+
+        print("PAYMENTS: ", payments)
+        
         # TODO: You just have to implement this function
         def total_payment(k):
             """
             Total payment for a bidder in slot k.
             """
-            c = slot_clicks
-            n = len(allocation)
 
-            # TODO: Compute the payment and return it.
+            return payments[k]
+
 
         def norm(totals):
             """Normalize total payments by the clicks in each slot"""

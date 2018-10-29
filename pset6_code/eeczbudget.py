@@ -49,9 +49,16 @@ class EECZBudget:
 
         returns a list of utilities per slot.
         """
-        # TODO: Fill this in
-        utilities = []   # Change this
+        prev_round = history.round(t-1)
+        clicks = prev_round.clicks
+        bids = prev_round.bids
+        occupants = prev_round.occupants
 
+        utilities = []
+
+        for i, slot_click in enumerate(clicks):
+            price = bids[occupants[i]][1]
+            utilities.append((self.value - price) * slot_click)
         
         return utilities
 

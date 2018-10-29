@@ -5,7 +5,7 @@ import sys
 from gsp import GSP
 from util import argmax_index
 
-class EECZBB:
+class EECZTest:
     """Balanced bidding agent"""
     def __init__(self, id, value, budget):
         self.id = id
@@ -88,15 +88,10 @@ class EECZBB:
         prev_round = history.round(t-1)
         (slot, min_bid, max_bid) = self.target_slot(t, history, reserve)
 
-        if min_bid >= self.value:
-            bid = self.value
-
-        elif slot == 0:
-            bid = self.value
-
-        else:
-            bid = -1 * (prev_round.clicks[slot] * (self.value - min_bid) / prev_round.clicks[slot-1] - self.value)
-
+        # TODO: Fill this in.
+        random.choice(occupants)
+        bid = 0  # change this
+        
         return bid
 
     def __repr__(self):
