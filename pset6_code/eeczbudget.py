@@ -49,6 +49,8 @@ class EECZBudget:
 
         returns a list of utilities per slot.
         """
+
+        # copied from balanced bids
         prev_round = history.round(t-1)
         clicks = prev_round.clicks
         bids = prev_round.bids
@@ -56,10 +58,16 @@ class EECZBudget:
 
         utilities = []
 
-        for i, slot_click in enumerate(clicks):
-            price = bids[occupants[i]][1]
-            utilities.append((self.value - price) * slot_click)
-        
+        # if there are no occupants, then we just set the utility of the first position
+        if len(occupants) == 0:
+            utilities.append((self.value - reserve) * clicks[0])
+            return utilities
+
+        # otherwise, we calculate all the utilities for each position with an occupant
+        for i, a in enumerate(occupants):
+            price = bids[a][1]
+            utilities.append((self.value - price) * clicks[i]) 
+
         return utilities
 
     def target_slot(self, t, history, reserve):

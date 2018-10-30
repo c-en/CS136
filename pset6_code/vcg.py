@@ -54,16 +54,11 @@ class VCG:
             payments.append(payment)
         payments = payments[::-1]
 
-        print("PAYMENTS: ", payments)
-        
-        # TODO: You just have to implement this function
         def total_payment(k):
             """
             Total payment for a bidder in slot k.
             """
-
             return payments[k]
-
 
         def norm(totals):
             """Normalize total payments by the clicks in each slot"""

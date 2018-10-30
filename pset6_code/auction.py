@@ -165,11 +165,6 @@ def sim(config):
     for a in agents:
         history.set_agent_spent(a.id, total_spent(a.id, config.num_rounds))
     
-    # print("HISTORY clicks: ", history.round(1).clicks)
-    # print("HISTORY bids: ", history.round(1).bids)
-    # print("HISTORY occupants: ", history.round(1).occupants)
-    # print("HISTORY per click payments: ", history.round(1).per_click_payments)
-    # print("HISTORY slot payment: ", history.round(1).slot_payments)
     return history
 
 class Params:
