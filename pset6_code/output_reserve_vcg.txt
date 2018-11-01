@@ -1,104 +1,26 @@
-Reserve Price: 0
-Starting simulation...
-Running approximation: taking 1 samples of value permutations
-Average daily revenue (stddev): $2347.03 ($604.96)
-Reserve Price: 5
-Starting simulation...
-Running approximation: taking 1 samples of value permutations
-Average daily revenue (stddev): $2353.33 ($604.89)
-Reserve Price: 10
-Starting simulation...
-Running approximation: taking 1 samples of value permutations
-Average daily revenue (stddev): $2361.74 ($604.87)
-Reserve Price: 15
-Starting simulation...
-Running approximation: taking 1 samples of value permutations
-Average daily revenue (stddev): $2370.01 ($604.98)
-Reserve Price: 20
-Starting simulation...
-Running approximation: taking 1 samples of value permutations
-Average daily revenue (stddev): $2378.79 ($604.92)
-Reserve Price: 25
-Starting simulation...
-Running approximation: taking 1 samples of value permutations
-Average daily revenue (stddev): $2388.10 ($604.91)
-Reserve Price: 30
-Starting simulation...
-Running approximation: taking 1 samples of value permutations
-Average daily revenue (stddev): $2378.59 ($622.20)
-Reserve Price: 35
-Starting simulation...
-Running approximation: taking 1 samples of value permutations
-Average daily revenue (stddev): $2407.72 ($596.09)
-Reserve Price: 40
-Starting simulation...
-Running approximation: taking 1 samples of value permutations
-Average daily revenue (stddev): $2408.94 ($635.07)
-Reserve Price: 45
-Starting simulation...
-Running approximation: taking 1 samples of value permutations
-Average daily revenue (stddev): $2419.92 ($800.66)
-Reserve Price: 50
-Starting simulation...
-Running approximation: taking 1 samples of value permutations
-Average daily revenue (stddev): $2335.69 ($832.01)
-Reserve Price: 55
-Starting simulation...
-Running approximation: taking 1 samples of value permutations
-Average daily revenue (stddev): $2307.92 ($882.92)
-Reserve Price: 60
-Starting simulation...
-Running approximation: taking 1 samples of value permutations
-Average daily revenue (stddev): $2101.19 ($958.92)
-Reserve Price: 65
-Starting simulation...
-Running approximation: taking 1 samples of value permutations
-Average daily revenue (stddev): $2054.13 ($999.86)
-Reserve Price: 70
-Starting simulation...
-Running approximation: taking 1 samples of value permutations
-Average daily revenue (stddev): $2002.70 ($1063.91)
-Reserve Price: 75
-Starting simulation...
-Running approximation: taking 1 samples of value permutations
-Average daily revenue (stddev): $1856.60 ($1181.85)
-Reserve Price: 80
-Starting simulation...
-Running approximation: taking 1 samples of value permutations
-Average daily revenue (stddev): $1879.05 ($1128.37)
-Reserve Price: 85
-Starting simulation...
-Running approximation: taking 1 samples of value permutations
-Average daily revenue (stddev): $1796.26 ($1150.54)
-Reserve Price: 90
-Starting simulation...
-Running approximation: taking 1 samples of value permutations
-Average daily revenue (stddev): $1532.47 ($1183.38)
-Reserve Price: 95
-Starting simulation...
-Running approximation: taking 1 samples of value permutations
-Average daily revenue (stddev): $1644.58 ($1278.03)
-Reserve Price: 100
-Starting simulation...
-Running approximation: taking 1 samples of value permutations
-Average daily revenue (stddev): $1282.25 ($1163.52)
-Reserve Price: 105
-Starting simulation...
-Running approximation: taking 1 samples of value permutations
-Average daily revenue (stddev): $1334.15 ($1244.12)
-Reserve Price: 110
-Starting simulation...
-Running approximation: taking 1 samples of value permutations
-Average daily revenue (stddev): $1216.46 ($1209.60)
-Reserve Price: 115
-Starting simulation...
-Running approximation: taking 1 samples of value permutations
-Average daily revenue (stddev): $936.13 ($1000.17)
-Reserve Price: 120
-Starting simulation...
-Running approximation: taking 1 samples of value permutations
-Average daily revenue (stddev): $795.63 ($982.27)
-Reserve Price: 125
-Starting simulation...
-Running approximation: taking 1 samples of value permutations
-Average daily revenue (stddev): $689.11 ($895.94)
+423163.94
+423163.94
+423163.94
+423163.94
+423163.94
+423163.94
+427093.03
+437867.345
+444627.25
+470573.325
+463439.86
+475717.06
+466167.54
+481636.725
+489741.465
+489286.575
+511531.155
+520504.575
+504138.205
+524302.585
+499727.275
+507596.315
+504789.38
+480241.59
+463031.725
+448920.79

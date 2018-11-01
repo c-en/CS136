@@ -39,11 +39,17 @@ class VCG:
 
         num_slots = len(slot_clicks)
         allocated_bids = valid_bids[:num_slots]
-        next_bid = valid_bids[num_slots][1]
+        try:
+            next_bid = valid_bids[num_slots][1]
+        except IndexError:
+            next_bid = reserve
+
         if len(allocated_bids) == 0:
             return ([], [])
         
         (allocation, just_bids) = zip(*allocated_bids)
+        just_bids = list(just_bids)
+        just_bids.extend([reserve]*((num_slots)-len(valid_bids)))
         def total_payment(k):
             """
             Total payment for a bidder in slot k.

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 for ((i=0; i<=125; i+=5)); do
-	echo Reserve Price: ${i} >> output_reserve_vcg.txt
+	# echo Reserve Price: ${i} >> output_reserve_vcg.txt
 	python2 auction.py --perms 1 --iters 200 --seed 2 --mech vcg --reserve ${i} Truthful,5 >> output_reserve_vcg.txt
 done
 
