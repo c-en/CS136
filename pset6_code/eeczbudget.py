@@ -78,8 +78,19 @@ class EECZBudget:
         the other-agent bid for that slot in the last round.  If slot_id = 0,
         max_bid is min_bid * 2
         """
-        i =  argmax_index(self.expected_utils(t, history, reserve))
-        info = self.slot_info(t, history, reserve)
+        agent_dropped = False
+        for s in history.agents_spent:
+            if s > 60000:
+                agent_dropped = True
+                break
+        if agent_dropped or t > 24:
+            i =  argmax_index(self.expected_utils(t, history, reserve))
+            info = self.slot_info(t, history, reserve)
+        else:
+            utils = self.expected_utils(t, history, reserve)
+            info = self.slot_info(t, history, reserve)
+            score = [utils[i] / (info[i][1] + 1.) for i in range(len(utils))]
+            i = argmax_index(score)
         return info[i]
 
     def bid(self, t, history, reserve):
@@ -96,10 +107,18 @@ class EECZBudget:
         prev_round = history.round(t-1)
         (slot, min_bid, max_bid) = self.target_slot(t, history, reserve)
 
-        # TODO: Fill this in.
-        bid = 0  # change this
-        
-        return bid
+        if min_bid >= self.value: # expect to lose
+            bid = self.value
+
+        elif slot == 0: # top slot
+            bid = self.value
+
+        else: # aggressive balance
+            bbid = -1 * (prev_round.clicks[slot] * (self.value - min_bid) / prev_round.clicks[slot-1] - self.value)
+            highbid = min(max_bid, self.value)
+            bid = (bbid + highbid) / 2.
+
+        return int(bid)
 
     def __repr__(self):
         return "%s(id=%d, value=%d)" % (
