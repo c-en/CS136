@@ -44,7 +44,7 @@ class MarketLinear:
     # agents: agents in the market; MUST BE SORTED (or shuffled) IN ORDER OF INCREASING BUDGET
     # values: linear values of objects for each agent (|agent| by |object| array)
     # capacities: allocation capacity of each agent (|agent| length array)
-    def __init__(self, objects, agents, values, capacities):
+    def __init__(self, objects, agents, values, complements, capacities):
         self.agent_names = agents
         self.agent_models = []
         self.objects = objects
