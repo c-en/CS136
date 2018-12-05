@@ -1,8 +1,7 @@
 import itertools
-#import tabu_gen
+import tabu_gen
 import numpy as np
 import marketLinear
-import tabu_gen
 #def gen_data(min_workers_shift, )
 
 def main():
@@ -20,27 +19,50 @@ def main():
     worker_max_value = 10
     complement_val = 20
     # probability distribution of values
-    worker_value_weights = [0.5]+[0.5/(worker_max_value) for i in range(worker_max_value)]
+    # worker_value_weights = [0.5]+[0.5/(worker_max_value) for i in range(worker_max_value)]
     worker_caps = [12, 30, 40]
+
+    # 0.5 full day, 0.4 (beg, end - 12-5), 0.1 nothing
+    hour_distribution = [0.5, 0.2, 0.2, 0.1]
 
     days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
     hours = range(9,17)
     shifts = list(itertools.product(days,hours))
     num_shifts = len(shifts)
-    print("SHIFTS: ", shifts)
+    #print("SHIFTS: ", shifts)
 
     # 1D array representing the number of workers per shift
     # day = days[int(index/7)], hour = index%7
     availabiliites_max = np.random.randint(min_workers_shift, max_workers_shift+1, size=num_shifts)
-    print("availabiliites_max: ", availabiliites_max)
     availabilities_min = availabiliites_max-4
     availabiliites = [availabilities_min, availabiliites_max]
 
 
     # initialize agents, values
     workers = ['worker'+str(i) for i in range(num_workers)]
-    # should there be any restrictions on values of shifts?
-    worker_values = np.random.choice(worker_max_value+1, size=(num_workers, num_shifts), p=worker_value_weights)
+
+    # initialize shift values
+    worker_values = []
+    for worker in range(num_workers):
+        worker_array = []
+        for day in range(len(days)):
+            work_time = np.random.choice(4, p=hour_distribution)
+            work_val = np.random.choice(worker_max_value) + 1
+            # full day
+            if work_time == 0:
+                worker_array.extend([work_val]*8)
+            # beginning of day
+            elif work_time == 1:
+                worker_array.extend([work_val]*5 + [0]*3)
+            # end of day
+            elif work_time == 2:
+                worker_array.extend([0]*3 + [work_val]*5)
+            else:
+                worker_array.extend([0]*8)
+
+        worker_values.append(worker_array)
+
+    worker_values = np.array(worker_values)
 
     # initialize agent capacities
     worker_capacities = np.random.choice(worker_caps, size=num_workers)
@@ -49,13 +71,9 @@ def main():
     worker_complements = np.zeros((num_workers, num_shifts, num_shifts))
     for worker in range(num_workers):
         for i in range(num_shifts):
-            if worker_values[worker][i] > 0:
-                worker_complements[worker][i][i] = worker_values[worker][i]
-                if i < num_shifts-1 and worker_values[worker][i+1] > 0:
-                    worker_complements[worker][i][i+1] = complement_val
-    #for i in range(len(worker_complements[0])):
-        #print(worker_complements[0][i])
-
+            if i < num_shifts-1 and worker_values[worker][i] > 0 and worker_values[worker][i+1] > 0:
+                    worker_complements[worker][i][i+1] = worker_max_value
+    
     # initialize MarketLinear object
     print "MarketLinear init"
     Market = marketLinear.MarketLinear(shifts, workers, worker_values, worker_complements, worker_capacities)
