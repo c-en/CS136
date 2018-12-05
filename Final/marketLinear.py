@@ -66,3 +66,15 @@ class MarketLinear:
     # return list of agent models
     def agents(self):
         return self.agent_models
+
+def main():
+    objects = ['A','B','C']
+    value = [1,1,4]
+    complements = [[0,3,0],[0,0,0],[0,0,0]]
+    capacity = 2
+    budget = 100
+    agent = AgentLinear(objects, value, complements, capacity, budget)
+    print agent.demand([50,50,50])
+
+if __name__ == '__main__':
+    main()

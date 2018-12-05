@@ -25,7 +25,7 @@ def main():
     # 0.5 full day, 0.4 (beg, end - 12-5), 0.1 nothing
     hour_distribution = [0.5, 0.2, 0.2, 0.1]
 
-    days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+    days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
     hours = range(9,17)
     shifts = list(itertools.product(days,hours))
     num_shifts = len(shifts)
@@ -36,15 +36,15 @@ def main():
     availabilities_max = np.random.randint(min_workers_shift, max_workers_shift+1, size=num_shifts)
     availabilities_min = availabilities_max-4
     availabilities = [availabilities_min, availabilities_max]
-    print "MAX HOURS NEEDED: " + str(sum(availabilities_max))
-    print "MIN HOURS NEEDED: " + str(sum(availabilities_min))
+    print "MAX HOURS NEEDED: " + str((availabilities_max))
+    print "MIN HOURS NEEDED: " + str((availabilities_min))
 
     # initialize agents, values
     workers = ['worker'+str(i) for i in range(num_workers)]
 
     # initialize shift values
     worker_values = []
-    worker_total = 0
+    worker_total = np.zeros(len(shifts))
     for worker in range(num_workers):
         worker_array = []
         for day in range(len(days)):
@@ -53,19 +53,17 @@ def main():
             # full day
             if work_time == 0:
                 worker_array.extend([work_val]*8)
-                worker_total += 8
             # beginning of day
             elif work_time == 1:
                 worker_array.extend([work_val]*5 + [0]*3)
-                worker_total += 5
             # end of day
             elif work_time == 2:
                 worker_array.extend([0]*3 + [work_val]*5)
-                worker_total += 5
             else:
                 worker_array.extend([0]*8)
 
         worker_values.append(worker_array)
+        worker_total = worker_total + np.array(worker_array)/np.array(worker_array)
     print "WORKER TOTAL: " + str(worker_total)
 
     worker_values = np.array(worker_values)
