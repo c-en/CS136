@@ -13,11 +13,11 @@ class AgentLinear:
         # add variables
         self.object_vars = self.prob.addVars(self.objects, vtype = gb.GRB.BINARY, name='object')
         complement_vars = []
-        complement_coeffs = []
+        complement_coeffs = {}
         for objs, u in np.ndenumerate(complements):
             if not u==0:
                 complement_vars.append(objs)
-                complement_coeffs.append(u)
+                complement_coeffs[objs] = u
         self.complement_vars = self.prob.addVars(complement_vars, vtype = gb.GRB.BINARY, name = 'complement')
         # budget constraint
         self.budget = budget
@@ -25,17 +25,17 @@ class AgentLinear:
         # capacity constraints
         self.prob.addConstr(sum(1.0 * self.object_vars[x] for x in objects), sense=gb.GRB.LESS_EQUAL, rhs=float(capacity),name='capacity')
         # complement constraints
-        for i, objs in enumerate(complement_vars):
-            self.prob.addConstr(2.0*self.complement_vars[i] - 1.0*self.object_vars[objs[0]] - 1.0*self.object_vars[objs[1]], sense=gb.GRB.EQUAL, rhs=0.0,name='complement'+str(i))
+        for objs in complement_vars:
+            self.prob.addConstr(2.0*self.complement_vars[objs] - 1.0*self.object_vars[self.objects[objs[0]]] - 1.0*self.object_vars[self.objects[objs[1]]], sense=gb.GRB.EQUAL, rhs=0.0,name='complement'+str(objs))
         # add objective
-        self.prob.setObjective(self.object_vars.prod(value) + self.complement_vars.prod(complement_coeffs), gb.GRB.MAXIMIZE)
+        self.prob.setObjective(self.object_vars.prod({objects[i]:v for i,v in enumerate(value)}) + self.complement_vars.prod(complement_coeffs), gb.GRB.MAXIMIZE)
         # add scheduling constraint? how to handle????????????????????
 
     def demand(self, prices):
         for i, p in enumerate(prices):
             self.prob.chgCoeff(self.budgetConstraint, self.object_vars[self.objects[i]], p)
         self.prob.optimize()
-        return np.array([v.x for v in self.prob.getVars()])
+        return np.array([self.object_vars[v].x for v in self.object_vars])
 
     # do we need stage2 or stage3(!) demand??????
 

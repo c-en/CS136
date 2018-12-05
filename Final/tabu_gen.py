@@ -1,19 +1,17 @@
-from demand_gurobi import DemandGUROBI
 import math
 import random
 import csv
 import numpy as np
 import time
-import postprocess
 
 # 8 hours, max iters per restart t = 100: best error 1367
 # 2 hours, t = 100: best error 1676
 # 1 hour, t=100: 4258
 
-maxTime = 300
+maxTime = 1800
 GradientNeighbors = np.linspace(0.05, 0.5, num=10)
 
-def vector_error(demand, avail)
+def vector_error(demand, avail):
     under = np.clip(np.subtract(avail[0], demand),0,float('inf'))
     over = np.clip(np.subtract(demand, avail[1]),0,float('inf'))
     diff = np.maximum(under, over)
@@ -82,7 +80,7 @@ def tabu(agents, objects, avail, Market):
         p = np.random.uniform(low=0.0, high=100.0, size=len(objects))
         curDemand = Market.demand(p)
         # searchError tracks best error found in this search start
-        searchError = clearing_error_gen(curDemand, avail)
+        searchError = clearing_error(curDemand, avail)
         # set of tabu demand locations
         taboo = set([])
         # c tracks number of steps without improving error, t tracks total steps

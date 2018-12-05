@@ -1,7 +1,8 @@
 import itertools
 #import tabu_gen
 import numpy as np
-
+import marketLinear
+import tabu_gen
 #def gen_data(min_workers_shift, )
 
 def main():
@@ -13,7 +14,6 @@ def main():
     #   - availabiliites of objects (lower and upper bound)
     #       - 15-22 workers per shift
     # initialize shifts
-
     num_workers = 40
     min_workers_shift = 15
     max_workers_shift = 22
@@ -31,8 +31,11 @@ def main():
 
     # 1D array representing the number of workers per shift
     # day = days[int(index/7)], hour = index%7
-    availabiliites = np.random.randint(min_workers_shift, max_workers_shift+1, size=num_shifts)
-    print("availabiliites: ", availabiliites)
+    availabiliites_max = np.random.randint(min_workers_shift, max_workers_shift+1, size=num_shifts)
+    print("availabiliites_max: ", availabiliites_max)
+    availabilities_min = availabiliites_max-4
+    availabiliites = [availabilities_min, availabiliites_max]
+
 
     # initialize agents, values
     workers = ['worker'+str(i) for i in range(num_workers)]
@@ -50,7 +53,17 @@ def main():
                 worker_complements[worker][i][i] = worker_values[worker][i]
                 if i < num_shifts-1 and worker_values[worker][i+1] > 0:
                     worker_complements[worker][i][i+1] = complement_val
-    for i in range(len(worker_complements[0])):
-        print(worker_complements[0][i])
+    #for i in range(len(worker_complements[0])):
+        #print(worker_complements[0][i])
 
-main()
+    # initialize MarketLinear object
+    print "MarketLinear init"
+    Market = marketLinear.MarketLinear(shifts, workers, worker_values, worker_complements, worker_capacities)
+
+    # initialize tabu search, return allocation
+    print "tabu init"
+    allocation = tabu_gen.tabu(workers, shifts, availabiliites, Market)
+    return allocation
+
+if __name__ == "__main__":
+	main()
