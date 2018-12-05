@@ -8,7 +8,7 @@ import time
 # 2 hours, t = 100: best error 1676
 # 1 hour, t=100: 4258
 
-maxTime = 6*60*60
+maxTime = 60*10
 GradientNeighbors = np.linspace(0.05, 0.5, num=10)
 
 def vector_error(demand, avail):

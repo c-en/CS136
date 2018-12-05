@@ -311,7 +311,7 @@ def main(args):
     options.agent_classes = load_modules(options.agent_class_names)
     options.dropoff = 0.75
 
-    #logging.info("Starting simulation...")
+    logging.info("Starting simulation...")
     n = len(agents_to_run)
 
     totals = dict((id, 0) for id in range(n))
@@ -320,9 +320,9 @@ def main(args):
     approx = math.factorial(n) > options.max_perms
     if approx:
         num_perms = options.max_perms
-        # logging.warning(
-        #     "Running approximation: taking %d samples of value permutations"
-        #     % options.max_perms)
+        logging.warning(
+            "Running approximation: taking %d samples of value permutations"
+            % options.max_perms)
     else:
         num_perms = math.factorial(n)
 
@@ -332,7 +332,7 @@ def main(args):
     ##  iters = no. of samples to take
     for i in range(options.iters):
         values = get_utils(n, options)
-        #logging.info("==== Iteration %d / %d.  Values %s ====" % (i, options.iters, values))
+        logging.info("==== Iteration %d / %d.  Values %s ====" % (i, options.iters, values))
         ## Create permutations (permutes the random values, and assigns them to agents)
         if approx:
             perms = [shuffled(values) for i in range(options.max_perms)]
@@ -362,18 +362,18 @@ def main(args):
 
     # Averages are over all the value permutations considered    
     N = float(num_perms) * options.iters
-    # logging.info("%s\t\t%s\t\t%s" % ("#" * 15, "RESULTS", "#" * 15))
-    # logging.info("")
-    # for a in range(n):
-    #     logging.info("Stats for Agent %d, %s" % (a, agents_to_run[a]) )
-    #     logging.info("Average spend $%.2f (daily)" % (0.01 *total_spent[a]/N)  )   
-    #     logging.info("Average  utility  $%.2f (daily)" % (0.01 * totals[a]/N))
-    #     logging.info("-" * 40)
-    #     logging.info("\n")
+    logging.info("%s\t\t%s\t\t%s" % ("#" * 15, "RESULTS", "#" * 15))
+    logging.info("")
+    for a in range(n):
+        logging.info("Stats for Agent %d, %s" % (a, agents_to_run[a]) )
+        logging.info("Average spend $%.2f (daily)" % (0.01 *total_spent[a]/N)  )   
+        logging.info("Average  utility  $%.2f (daily)" % (0.01 * totals[a]/N))
+        logging.info("-" * 40)
+        logging.info("\n")
     m = mean(total_revenues)
     std = stddev(total_revenues)
-    #logging.warning("Average daily revenue (stddev): $%.2f ($%.2f)" % (0.01 * m, 0.01*std))
-    logging.warning(m)
+    logging.warning("Average daily revenue (stddev): $%.2f ($%.2f)" % (0.01 * m, 0.01*std))
+
 #print "config", config.budget
     
 
