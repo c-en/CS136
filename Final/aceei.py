@@ -20,7 +20,7 @@ def main():
     complement_val = 20
     # probability distribution of values
     # worker_value_weights = [0.5]+[0.5/(worker_max_value) for i in range(worker_max_value)]
-    worker_caps = [12, 30, 40]
+    worker_caps = [4, 10, 13]
 
     # 0.5 full day, 0.4 (beg, end - 12-5), 0.1 nothing
     hour_distribution = [0.5, 0.2, 0.2, 0.1]
