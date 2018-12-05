@@ -50,7 +50,7 @@ class MarketLinear:
         self.objects = objects
         budgets = np.linspace(start = 100, stop = 107, num = len(agents))
         for i in range(len(agents)):
-            self.agent_models.append(AgentLinear(objects, values[i], capacities[i], budgets[i]))
+            self.agent_models.append(AgentLinear(objects, values[i], complements[i], capacities[i], budgets[i]))
 
     # given price vector, get total demand
     def demand(self, prices):
