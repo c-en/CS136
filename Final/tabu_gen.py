@@ -8,7 +8,7 @@ import time
 # 2 hours, t = 100: best error 1676
 # 1 hour, t=100: 4258
 
-maxTime = 1800
+maxTime = 60
 GradientNeighbors = np.linspace(0.05, 0.5, num=10)
 
 def vector_error(demand, avail):
@@ -77,7 +77,7 @@ def tabu(agents, objects, avail, Market):
         print "RANDOM RESTART "+str(restarts)
         restarts += 1
         # start search from random, reasonable price vector
-        p = np.random.uniform(low=0.0, high=100.0, size=len(objects))
+        p = np.random.uniform(low=0.0, high=107.0, size=len(objects))
         curDemand = Market.demand(p)
         # searchError tracks best error found in this search start
         searchError = clearing_error(curDemand, avail)
@@ -130,5 +130,5 @@ def tabu(agents, objects, avail, Market):
     allocation = Market.allocation(bestPrice)
     # save initial allocation 
     np.savetxt('preallocation.csv', allocation, delimiter=',')
-    print "FINAL PRICE: "
+    print "FINAL PRICE: " + str(bestPrice)
     return allocation

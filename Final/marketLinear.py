@@ -48,7 +48,7 @@ class MarketLinear:
         self.agent_names = agents
         self.agent_models = []
         self.objects = objects
-        budgets = np.linspace(start = 100, stop = 107, num = len(agents))
+        budgets = np.linspace(start = 100., stop = 107., num = len(agents))
         for i in range(len(agents)):
             self.agent_models.append(AgentLinear(objects, values[i], complements[i], capacities[i], budgets[i]))
 

@@ -33,16 +33,18 @@ def main():
 
     # 1D array representing the number of workers per shift
     # day = days[int(index/7)], hour = index%7
-    availabiliites_max = np.random.randint(min_workers_shift, max_workers_shift+1, size=num_shifts)
-    availabilities_min = availabiliites_max-4
-    availabiliites = [availabilities_min, availabiliites_max]
-
+    availabilities_max = np.random.randint(min_workers_shift, max_workers_shift+1, size=num_shifts)
+    availabilities_min = availabilities_max-4
+    availabilities = [availabilities_min, availabilities_max]
+    print "MAX HOURS NEEDED: " + str(sum(availabilities_max))
+    print "MIN HOURS NEEDED: " + str(sum(availabilities_min))
 
     # initialize agents, values
     workers = ['worker'+str(i) for i in range(num_workers)]
 
     # initialize shift values
     worker_values = []
+    worker_total = 0
     for worker in range(num_workers):
         worker_array = []
         for day in range(len(days)):
@@ -51,21 +53,26 @@ def main():
             # full day
             if work_time == 0:
                 worker_array.extend([work_val]*8)
+                worker_total += 8
             # beginning of day
             elif work_time == 1:
                 worker_array.extend([work_val]*5 + [0]*3)
+                worker_total += 5
             # end of day
             elif work_time == 2:
                 worker_array.extend([0]*3 + [work_val]*5)
+                worker_total += 5
             else:
                 worker_array.extend([0]*8)
 
         worker_values.append(worker_array)
+    print "WORKER TOTAL: " + str(worker_total)
 
     worker_values = np.array(worker_values)
 
     # initialize agent capacities
     worker_capacities = np.random.choice(worker_caps, size=num_workers)
+    print 'WORKERS CAPS: ' + str(sum(worker_capacities))
 
     # initialize agent complement values
     worker_complements = np.zeros((num_workers, num_shifts, num_shifts))
@@ -80,7 +87,7 @@ def main():
 
     # initialize tabu search, return allocation
     print "tabu init"
-    allocation = tabu_gen.tabu(workers, shifts, availabiliites, Market)
+    allocation = tabu_gen.tabu(workers, shifts, availabilities, Market)
     return allocation
 
 if __name__ == "__main__":
