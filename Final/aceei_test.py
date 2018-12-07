@@ -1,45 +1,8 @@
-import marketLinear
 import itertools
+import aceei
 import numpy as np
-import random
-
-def snake(agents, objects, availabilities, values, complements, capacities):
-    # randomly order agents
-    a = range(len(agents))
-    random.shuffle(a)
-    allocation = [[] for _ in agents]
-    demand = np.array([0]*len(objects))
-    complete = [False] * len(agents)
-    allocation = [np.array([0]*len(objects)) for _ in agents]
-    while False in complete:
-        print a
-        done = []
-        for i in a:
-            p = np.array([0]*len(objects))
-            for j, d in enumerate(demand):
-                if d >= availabilities[1][j] and not allocation[i][j] == 1:
-                    p[j] = 100
-                else:
-                    p[j] = 0
-            value = np.array(values[j])
-            for j, d in enumerate(allocation[i]):
-                s = np.sum(values[i]) + np.sum(complements[i])
-                # print s
-                if d == 1:
-                    value[j] = 1000
-            # print value
-            agent = marketLinear.AgentLinear(objects, value, complements[i], capacities[i], 100)
-            tempalloc = agent.demand(p)
-            if np.array_equal(tempalloc,allocation[i]):
-                complete[i] = True
-                done.append(i)
-            else:
-                demand = demand - allocation[i] + tempalloc
-                allocation[i] = tempalloc
-        for i in done:
-            a.remove(i)
-        a.reverse()
-    return allocation
+import marketLinear
+#def gen_data(min_workers_shift, )
 
 def main():
     # randomly generate:
@@ -103,6 +66,7 @@ def main():
         worker_values.append(worker_array)
         #worker_total = worker_total + np.array(worker_array)/np.array(worker_array)
     #print "WORKER TOTAL: " + str(worker_total)
+    print(worker_values)
     worker_values = np.array(worker_values)
 
     # initialize agent capacities
@@ -115,8 +79,19 @@ def main():
         for i in range(num_shifts):
             if i%len(hours) != len(hours)-1 and worker_values[worker][i] > 0 and worker_values[worker][i+1] > 0:
                     worker_complements[worker][i][i+1] = worker_values[worker][i]
+    
+    #print(worker_complements[0])
+    # with open("output/prefs.csv", 'w') as f:
+    #     np.savetxt(f, worker_values, fmt='%i', delimiter=",")
 
-    return snake(workers, shifts, availabilities, worker_values, worker_complements, worker_capacities)
+    # initialize MarketLinear object
+    print "MarketLinear init"
+    Market = marketLinear.MarketLinear(shifts, workers, worker_values, worker_complements, worker_capacities)
+
+    # initialize tabu search, return allocation
+    print "tabu init"
+    allocation = aceei.tabu(workers, shifts, availabilities, Market)
+    return allocation
 
 if __name__ == "__main__":
-    print main()
+	main()

@@ -1,97 +1,134 @@
-import itertools
-import tabu_gen
+import math
+import random
+import csv
 import numpy as np
-import marketLinear
-#def gen_data(min_workers_shift, )
+import time
 
-def main():
-    # randomly generate:
-    #   - agents: 40
-    #       - agent-object values: 0-10
-    #       - agent-object-object complement values (i <= j): adjacent hours
-    #       - agent capacities: 12, 30, 40 (distribute randomly)
-    #   - availabiliites of objects (lower and upper bound)
-    #       - 15-22 workers per shift
+# 8 hours, max iters per restart t = 100: best error 1367
+# 2 hours, t = 100: best error 1676
+# 1 hour, t=100: 4258
 
-    num_workers = 40
-    min_workers_shift = 15
-    max_workers_shift = 22
-    worker_max_value = 10
-    complement_val = 20
-    # probability distribution of values
-    # worker_value_weights = [0.5]+[0.5/(worker_max_value) for i in range(worker_max_value)]
-    worker_caps = [4, 10, 13]
+maxTime = 60*10
+GradientNeighbors = np.linspace(0.05, 0.5, num=10)
 
-    # 0.5 full day, 0.4 (beg, end - 12-5), 0.1 nothing
-    hour_distribution = [0.5, 0.2, 0.2, 0.1]
+def vector_error(demand, avail):
+    under = np.clip(np.subtract(avail[0], demand),0,float('inf'))
+    over = np.clip(np.subtract(demand, avail[1]),0,float('inf'))
+    diff = np.maximum(under, over)
+    return diff
+# calculates clearing error of given choreo avail and given demand
+def clearing_error(demand, avail):
+    diff = vector_error(demand, avail)
+    return np.sum(np.square(diff))  
 
-    days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
-    hours = range(0, 3)
-    shifts = list(itertools.product(days,hours))
-    num_shifts = len(shifts)
-    #print("SHIFTS: ", shifts)
+# calculates neighboring price vectors of a given price vector p
+# return tuple: list of neighbor prices sorted by clearing error, list of corr. demand vecs, list of corr. error
+def N(p, curDemand, avail, Market):
+    neighbors = []
+    # gradient neighbors
+    demandError = vector_error(curDemand, avail)
+    div = max(np.absolute(demandError))
+    if not div == 0:
+        demandError /= div
+    steps = np.outer(GradientNeighbors, demandError)
+    for step in steps:
+        priceVec = np.multiply(step+1, p)
+        demand = Market.demand(priceVec)
+        error = clearing_error(demand, avail)
+        neighbors.append((priceVec, demand, error))
+    # individual adjustment neighbors
+    for i in range(len(p)):
+        if random.uniform(0,1) > 0.5:
+            if curDemand[i] < avail[0][i]:
+                priceVec = np.copy(p)
+                priceVec[i] = 0
+                demand = Market.demand(priceVec)
+                error = clearing_error(demand, avail)
+                neighbors.append((priceVec, demand, error))
+            elif curDemand[i] > avail[1][i]:
+                priceVec = np.copy(p)
+                priceVec[i] *= 1.05
+                demand = Market.demand(priceVec)
+                while demand[i] >= curDemand[i]:
+                    if priceVec[i] == 0:
+                        priceVec[i] = 1
+                    priceVec[i] *= 1.05
+                    demand = Market.demand(priceVec)
+                error = clearing_error(demand, avail)
+                neighbors.append((priceVec, demand, error))
+    # sort list of neighbors by best to worst clearing error
+    neighbors.sort(key = lambda x: x[2])
+    return zip(*neighbors)
+  
 
-    # 1D array representing the number of workers per shift
-    # day = days[int(index/7)], hour = index%7
-    availabilities_max = np.random.randint(min_workers_shift, max_workers_shift+1, size=num_shifts)
-    availabilities_min = availabilities_max-4
-    availabilities_max = availabilities_max+4
-    availabilities = [availabilities_min, availabilities_max]
-    # print "MAX HOURS NEEDED: " + str((availabilities_max))
-    # print "MIN HOURS NEEDED: " + str((availabilities_min))
-
-    # initialize agents, values
-    workers = ['worker'+str(i) for i in range(num_workers)]
-
-    # initialize shift values
-    worker_values = []
-    worker_total = np.zeros(len(shifts))
-    for worker in range(num_workers):
-        worker_array = []
-        for day in range(len(days)):
-            work_time = np.random.choice(len(hour_distribution), p=hour_distribution)
-            work_val = np.random.choice(worker_max_value) + 1
-            # full day
-            if work_time == 0:
-                worker_array.extend([work_val]*3)
-            # beginning of day
-            elif work_time == 1:
-                worker_array.extend([work_val]*2 + [0])
-            # end of day
-            elif work_time == 2:
-                worker_array.extend([0] + [work_val]*2)
-            else:
-                worker_array.extend([0]*3)
-
-        worker_values.append(worker_array)
-        #worker_total = worker_total + np.array(worker_array)/np.array(worker_array)
-    #print "WORKER TOTAL: " + str(worker_total)
-    print(worker_values)
-    worker_values = np.array(worker_values)
-
-    # initialize agent capacities
-    worker_capacities = np.random.choice(worker_caps, size=num_workers)
-    #print 'WORKERS CAPS: ' + str(sum(worker_capacities))
-
-    # initialize agent complement values
-    worker_complements = np.zeros((num_workers, num_shifts, num_shifts))
-    for worker in range(num_workers):
-        for i in range(num_shifts):
-            if i%len(hours) != len(hours)-1 and worker_values[worker][i] > 0 and worker_values[worker][i+1] > 0:
-                    worker_complements[worker][i][i+1] = worker_values[worker][i]
-    
-    #print(worker_complements[0])
-    # with open("output/prefs.csv", 'w') as f:
-    #     np.savetxt(f, worker_values, fmt='%i', delimiter=",")
-
-    # initialize MarketLinear object
-    print "MarketLinear init"
-    Market = marketLinear.MarketLinear(shifts, workers, worker_values, worker_complements, worker_capacities)
-
-    # initialize tabu search, return allocation
-    print "tabu init"
-    allocation = tabu_gen.tabu(workers, shifts, availabilities, Market)
+# agents: list of agents (standard)
+# objects: list of objects to be allocated (standard)
+# avail: availability of each object (standard) - format [[array of lower bound],[array of upper bound]]
+# Market: object with methods demand and allocation
+# demand: takes in price vector, returns total demand
+# allocation: takes in price vector, returns full allocation
+def tabu(agents, objects, avail, Market):
+    # begin random restarts
+    bestError = float('inf')
+    bestPrice = None
+    startTime = time.time()
+    restarts = 0
+    while time.time() - startTime < maxTime and bestError>0:
+        print "RANDOM RESTART "+str(restarts)
+        restarts += 1
+        # start search from random, reasonable price vector
+        p = np.random.uniform(low=0.0, high=107.0, size=len(objects))
+        curDemand = Market.demand(p)
+        # searchError tracks best error found in this search start
+        searchError = clearing_error(curDemand, avail)
+        # set of tabu demand locations
+        taboo = set([])
+        # c tracks number of steps without improving error, t tracks total steps
+        c = 0
+        t = 0
+        # restart search if error has not improved in 5 steps, 
+        restartTime = time.time()
+        while c < 5:
+            t += 1
+            foundNextStep = False
+            # get neighboring price vecs, their demand vecs, and their errors
+            nbPrices, nbDemands, nbErrors = N(p, curDemand, avail, Market)
+            # look thru neighbors for non-tabu price vec
+            for i in range(len(nbPrices)):
+                d = tuple(nbDemands[i])
+                if not d in taboo:
+                    foundNextStep = True
+                    # if non-tabu, add to tabu
+                    taboo.add(d)
+                    # update current location
+                    p = nbPrices[i]
+                    curDemand = Market.demand(p)
+                    # update current error and (if needed) best error in current restart
+                    # if improved, reset c; if not, increment c
+                    currentError = nbErrors[i]
+                    if currentError < searchError:
+                        searchError = currentError
+                        c = 0
+                    else:
+                        c += 1
+                    # update current "high score" if needed, over all restarts
+                    if currentError < bestError:
+                        bestError = currentError
+                        bestPrice = p
+                    break
+            if not foundNextStep:
+                break
+        print "STEPS: "+str(t)
+        print "ERROR: "+str(currentError)
+        print time.time() - startTime
+        print "----------------------------"
+    print "########################################"
+    print "BEST ERROR: " + str(bestError)
+    print "########################################"
+    print "STAGE 1 DEMAND"
+    print Market.demand(bestPrice)
+    allocation = Market.allocation(bestPrice)
+    # save initial allocation 
+    np.savetxt('preallocation.csv', allocation, delimiter=',')
+    print "FINAL PRICE: " + str(bestPrice)
     return allocation
-
-if __name__ == "__main__":
-	main()
