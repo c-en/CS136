@@ -68,6 +68,8 @@ def N(p, curDemand, avail, Market):
 # demand: takes in price vector, returns total demand
 # allocation: takes in price vector, returns full allocation
 def tabu(agents, objects, avail, Market):
+    times = []
+    besterrors = []
     # begin random restarts
     bestError = float('inf')
     bestPrice = None
@@ -120,6 +122,8 @@ def tabu(agents, objects, avail, Market):
                 break
         print "STEPS: "+str(t)
         print "ERROR: "+str(currentError)
+        times.append(time.time() - startTime)
+        besterrors.append(bestError)
         print time.time() - startTime
         print "----------------------------"
     print "########################################"
@@ -131,4 +135,4 @@ def tabu(agents, objects, avail, Market):
     # save initial allocation 
     np.savetxt('preallocation.csv', allocation, delimiter=',')
     print "FINAL PRICE: " + str(bestPrice)
-    return allocation
+    return allocation, times, besterrors
