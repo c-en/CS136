@@ -2,9 +2,11 @@ import itertools
 import aceei
 import numpy as np
 import marketLinear
+import csv
+import matplotlib.pyplot as plt
 #def gen_data(min_workers_shift, )
 
-def main():
+def run_aceei():
     # randomly generate:
     #   - agents: 40
     #       - agent-object values: 0-10
@@ -20,13 +22,13 @@ def main():
     complement_val = 20
     # probability distribution of values
     # worker_value_weights = [0.5]+[0.5/(worker_max_value) for i in range(worker_max_value)]
-    worker_caps = [4, 10, 13]
+    worker_caps = [12, 30, 40]
 
     # 0.5 full day, 0.4 (beg, end - 12-5), 0.1 nothing
     hour_distribution = [0.5, 0.2, 0.2, 0.1]
 
     days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
-    hours = range(0, 3)
+    hours = range(0, 8)
     shifts = list(itertools.product(days,hours))
     num_shifts = len(shifts)
     #print("SHIFTS: ", shifts)
@@ -53,20 +55,20 @@ def main():
             work_val = np.random.choice(worker_max_value) + 1
             # full day
             if work_time == 0:
-                worker_array.extend([work_val]*3)
+                worker_array.extend([work_val]*8)
             # beginning of day
             elif work_time == 1:
-                worker_array.extend([work_val]*2 + [0])
+                worker_array.extend([work_val]*5 + [0]*3)
             # end of day
             elif work_time == 2:
-                worker_array.extend([0] + [work_val]*2)
+                worker_array.extend([0]*3 + [work_val]*5)
             else:
-                worker_array.extend([0]*3)
+                worker_array.extend([0]*8)
 
         worker_values.append(worker_array)
         #worker_total = worker_total + np.array(worker_array)/np.array(worker_array)
     #print "WORKER TOTAL: " + str(worker_total)
-    print(worker_values)
+    # print(worker_values)
     worker_values = np.array(worker_values)
 
     # initialize agent capacities
@@ -90,8 +92,32 @@ def main():
 
     # initialize tabu search, return allocation
     print "tabu init"
-    allocation = aceei.tabu(workers, shifts, availabilities, Market)
-    return allocation
+    return aceei.tabu(workers, shifts, availabilities, Market)
 
 if __name__ == "__main__":
-	main()
+    times_arr = []
+    err_arr = []
+    num_trials = 10
+    for i in range(num_trials):
+       allocation, times, besterrors = run_aceei()
+       times_arr.append(np.array(times))
+       err_arr.append(np.array(besterrors))
+
+    with open("output/aceei_times.csv", mode='w') as f:
+        writer = csv.writer(f, delimiter=",")
+        for row in times_arr:
+            writer.writerow(row)
+    with open("output/aceei_errors.csv", mode='w') as f:
+        writer = csv.writer(f, delimiter=",")
+        for row in err_arr:
+            writer.writerow(row)
+
+    for i in range(num_trials):
+        plt.step(times_arr[i], err_arr[i])
+
+    plt.title("Error vs. Time")
+    plt.show()
+
+
+
+
