@@ -9,16 +9,30 @@ def rsd(agents, objects, availabilities, values, complements, capacities):
     random.shuffle(a)
     allocation = [[] for _ in agents]
     demand = np.zeros(len(objects))
+    forced = False
     for i in a:
-        p = np.zeros(len(objects))
-        for j, d in enumerate(demand):
-            if d >= availabilities[1][j]:
-                p[j] = 101
-            else:
-                p[j] = 0
+        if not forced:
+            p = np.zeros(len(objects))
+            for j, d in enumerate(demand):
+                if d >= availabilities[1][j]:
+                    p[j] = 101
+                else:
+                    p[j] = 0
+        else:
+            p = np.zeros(len(objects))
+            for j, d in enumerate(demand):
+                if np.maximum(availabilities[0]-demand,0)[j] > 0:
+                    p[j] = 0
+                else:
+                    p[j] = 101
         agent = marketLinear.AgentLinear(objects, values[i], complements[i], capacities[i], 100)
         allocation[i] = agent.demand(p)
         demand += allocation[i]
+        if not forced:
+            needed_hours = np.sum(np.maximum(availabilities[0]-demand,0))
+            worker_hours = sum([capacities[j] for j in a[i:]])
+            if needed_hours >= worker_hours:
+                forced = True
     return np.array(allocation)
 
 def main():
