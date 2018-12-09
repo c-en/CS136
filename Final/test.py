@@ -59,12 +59,12 @@ def gen_input():
 				worker_array.extend([work_val]*3)
 			# beginning of day
 			elif work_time == 1:
-				worker_array.extend([work_val]*2 + [0])
+				worker_array.extend([work_val]*2 + [0.001])
 			# end of day
 			elif work_time == 2:
-				worker_array.extend([0] + [work_val]*2)
+				worker_array.extend([0.001] + [work_val]*2)
 			else:
-				worker_array.extend([0]*3)
+				worker_array.extend([0.001]*3)
 
 		worker_values.append(worker_array)
 		#worker_total = worker_total + np.array(worker_array)/np.array(worker_array)
@@ -79,7 +79,7 @@ def gen_input():
 	worker_complements = np.zeros((num_workers, num_shifts, num_shifts))
 	for worker in range(num_workers):
 		for i in range(num_shifts):
-			if i%len(hours) != len(hours)-1 and worker_values[worker][i] > 0 and worker_values[worker][i+1] > 0:
+			if i%len(hours) != len(hours)-1 and worker_values[worker][i] >= 1 and worker_values[worker][i+1] >= 1:
 					worker_complements[worker][i][i+1] = worker_values[worker][i]
 	input_dict = {
 		"workers": workers,

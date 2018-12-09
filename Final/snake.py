@@ -12,23 +12,30 @@ def snake(agents, objects, availabilities, values, complements, capacities):
     demand = np.array([0]*len(objects))
     complete = [False] * len(agents)
     allocation = [np.array([0]*len(objects)) for _ in agents]
+    forced = False
     while False in complete:
-        print a
         done = []
         for i in a:
-            p = np.array([0]*len(objects))
-            for j, d in enumerate(demand):
-                if d >= availabilities[1][j] and not allocation[i][j] == 1:
-                    p[j] = 100
-                else:
-                    p[j] = 0
+            if not forced:
+                p = np.zeros(len(objects))
+                for j, d in enumerate(demand):
+                    if d >= availabilities[1][j] and not allocation[i][j] == 1:
+                        p[j] = 101
+                    else:
+                        p[j] = 0
+            else:
+                p = np.zeros(len(objects))
+                hours_needed = availabilities[0]-demand
+                for j, d in enumerate(demand):
+                    if  hours_needed[j] <= 0 and not allocation[i][j] == 1:
+                        p[j] = 101
+                    else:
+                        p[j] = 0
             value = np.array(values[j])
             for j, d in enumerate(allocation[i]):
                 s = np.sum(values[i]) + np.sum(complements[i])
-                # print s
                 if d == 1:
                     value[j] = 1000
-            # print value
             agent = marketLinear.AgentLinear(objects, value, complements[i], capacities[i], 100)
             tempalloc = agent.demand(p)
             if np.array_equal(tempalloc,allocation[i]):
@@ -37,6 +44,12 @@ def snake(agents, objects, availabilities, values, complements, capacities):
             else:
                 demand = demand - allocation[i] + tempalloc
                 allocation[i] = tempalloc
+            if not forced:
+                needed_hours = np.sum(np.maximum(availabilities[0]-demand,0))
+                print "NEEDED HOURS: " + str(needed_hours)
+                worker_hours = sum([capacities[j] for j in a[i:]])
+                if needed_hours >= worker_hours:
+                    forced = True
         for i in done:
             a.remove(i)
         a.reverse()
