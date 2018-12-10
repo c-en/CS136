@@ -4,6 +4,14 @@ import numpy as np
 import random
 import test
 
+# performs a snake draft for the given market
+# agents: list of agents
+# objects: list of objects
+# availabilities: availability of each object (standard) - format [[array of lower bound],[array of upper bound]]
+# values: linear values of objects for each agent (|agent| by |object| array)
+# complements: matrix of values for each agent for having 2 objects simultaneously (|agent| by |object| by |object|)
+# capacities: allocation capacity of each agent (|agent| length array)
+# returns allocation
 def snake(agents, objects, availabilities, values, complements, capacities):
     # randomly order agents
     a = range(len(agents))
@@ -15,7 +23,9 @@ def snake(agents, objects, availabilities, values, complements, capacities):
     forced = False
     while False in complete:
         done = []
+        # in each round, agents each pick one shift
         for i in a:
+            # if surplus of worker-hours, workers can select any shift not at capacity
             if not forced:
                 p = np.zeros(len(objects))
                 for j, d in enumerate(demand):
@@ -23,6 +33,7 @@ def snake(agents, objects, availabilities, values, complements, capacities):
                         p[j] = 101
                     else:
                         p[j] = 0
+            # if shortage of worker-hours, workers must select from understaffed shifts
             else:
                 p = np.zeros(len(objects))
                 hours_needed = availabilities[0]-demand
@@ -32,26 +43,32 @@ def snake(agents, objects, availabilities, values, complements, capacities):
                     else:
                         p[j] = 0
             value = np.array(values[j])
+            # force agent to demand previously selected shifts
             for j, d in enumerate(allocation[i]):
                 s = np.sum(values[i]) + np.sum(complements[i])
                 if d == 1:
                     value[j] = 1000
+            # solve for the agent's demand at this round
             agent = marketLinear.AgentLinear(objects, value, complements[i], capacities[i], 100)
             tempalloc = agent.demand(p)
+            # if demand is identical to last round, nothing was picked, and this agent is done
             if np.array_equal(tempalloc,allocation[i]):
                 complete[i] = True
                 done.append(i)
             else:
                 demand = demand - allocation[i] + tempalloc
                 allocation[i] = tempalloc
+            # check for surplus or shortage of worker-hours
             if not forced:
                 needed_hours = np.sum(np.maximum(availabilities[0]-demand,0))
                 print "NEEDED HOURS: " + str(needed_hours)
                 worker_hours = sum([capacities[j] for j in a[i:]])
                 if needed_hours >= worker_hours:
                     forced = True
+
         for i in done:
             a.remove(i)
+        # reverse pick order for the next round
         a.reverse()
     return allocation
 
