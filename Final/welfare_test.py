@@ -105,9 +105,9 @@ def calc_value(allocation, value, complement_val):
 
 
 def run_welfare_tests(num_tests):
-	all_snake_vals = []
-	all_rsd_vals = []
-	all_aceei_vals = []
+	snake_vals = []
+	rsd_vals = []
+	aceei_vals = []
 	for i in range(num_tests):
 		print "################### TRIAL " + str(i) + " ########################"
 		input_dict = gen_input()
@@ -125,41 +125,51 @@ def run_welfare_tests(num_tests):
 		# print "ACEEI ALLOC: " + str(aceei_alloc)
 		# print "*******************************"
 
-		snake_vals = []
-		rsd_vals = []
-		aceei_vals = []
+		# snake_vals = []
+		# rsd_vals = []
+		# aceei_vals = []
 		for a in range(len(input_dict["workers"])):
 			snake_vals.append(calc_value(snake_alloc[a], input_dict["worker_values"][a], input_dict["worker_complements"][a]))
 			rsd_vals.append(calc_value(rsd_alloc[a], input_dict["worker_values"][a], input_dict["worker_complements"][a]))
 			aceei_vals.append(calc_value(aceei_alloc[a], input_dict["worker_values"][a], input_dict["worker_complements"][a]))
 		
-		all_snake_vals.append(snake_vals)
-		all_rsd_vals.append(rsd_vals)
-		all_aceei_vals.append(aceei_vals)
+		# all_snake_vals.append(snake_vals)
+		# all_rsd_vals.append(rsd_vals)
+		# all_aceei_vals.append(aceei_vals)
 	# print "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"
 	# print all_snake_vals
 	# print len(all_snake_vals)
 	# print np.mean(all_snake_vals, axis=0)
 	# print len(np.mean(all_snake_vals, axis=0))
+	# print "************************"
+	# print len(snake_vals)
+	# print snake_vals
+	# print rsd_vals
+	# print aceei_vals
 
-	return np.mean(all_snake_vals, axis=0), np.mean(all_rsd_vals, axis=0), np.mean(all_aceei_vals, axis=0)
+	return snake_vals, rsd_vals, aceei_vals
 
-def viz_welfare_results(snake_vals, rsd_vals, aceei_vals):
+def viz_welfare_results(snake_vals, rsd_vals, aceei_vals, num_tests):
 	# snake_vals = [119.0, 61.0, 118.0, 99.0, 77.0, 32.0, 116.0, 30.0, 40.0, 27.0, 49.0, 122.0, 30.0, 50.0, 24.0, 30.0, 53.0, 39.0, 91.0, 25.0, 126.0, 30.0, 9.0, 30.0, 40.0, 70.0, 35.0, 89.0, 111.0, 50.0, 97.0, 76.0, 27.0, 63.0, 5.0, 78.0, 95.0, 35.0, 56.0, 83.0]
 	# rsd_vals = [119.0, 71.0, 128.0, 78.0, 107.0, 60.0, 116.0, 45.0, 40.0, 45.0, 64.0, 122.0, 40.0, 0.0, 65.0, 45.0, 77.0, 69.0, 91.0, 39.0, 126.0, 30.0, 9.0, 51.0, 45.0, 75.0, 137.0, 15.0, 111.0, 12.0, 97.0, 76.0, 39.0, 84.0, 40.0, 78.0, 95.0, 35.0, 45.0, 92.0]
 	# aceei_vals = [89.0, 61.0, 94.0, 45.0, 80.0, 60.0, 59.0, 45.0, 40.0, 45.0, 55.0, 72.0, 40.0, 60.0, 100.0, 45.0, 77.0, 69.0, 66.0, 39.0, 126.0, 45.0, 25.0, 57.0, 45.0, 75.0, 107.0, 92.0, 87.0, 57.0, 97.0, 76.0, 39.0, 81.0, 40.0, 78.0, 95.0, 35.0, 101.0, 72.0]
 	print "Average Snake value: " + str(np.mean(snake_vals))
 	print "Average RSD Value: " + str(np.mean(rsd_vals))
 	print "Average ACEEI Value: " + str(np.mean(aceei_vals))
+	with open("output/values.csv", 'w') as f:
+		np.savetxt(f, np.c_[snake_vals, rsd_vals, aceei_vals], fmt='%i', delimiter=",")
 
-	plt.hist(snake_vals, alpha=0.4, bins=5, label="snake")
-	plt.hist(rsd_vals, alpha=0.4, bins=5, label="rsd")
-	plt.hist(aceei_vals, alpha=0.4, bins=5, label="aceei")
+	plt.hist([snake_vals, rsd_vals, aceei_vals], alpha=0.4, bins=30, label=["Snake", "RSD", "A-CEEI"])
+	# plt.hist(rsd_vals, alpha=0.4, bins=30, label="rsd")
+	# plt.hist(aceei_vals, alpha=0.4, bins=30, label="aceei")
 	plt.legend(loc="upper right")
 	plt.suptitle("Distribution of Welfare")
+	plt.xlabel("Individual Welfare")
+	plt.ylabel("Number of Workers")
 	plt.show()
 
 if __name__ == "__main__":
 	#run_tests()
-	snake_res, rsd_res, aceei_res = run_welfare_tests(2)
-	viz_welfare_results(snake_res, rsd_res, aceei_res)
+	num_tests = 48
+	snake_res, rsd_res, aceei_res = run_welfare_tests(num_tests)
+	viz_welfare_results(snake_res, rsd_res, aceei_res, num_tests)

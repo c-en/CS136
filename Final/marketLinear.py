@@ -29,7 +29,6 @@ class AgentLinear:
             self.prob.addConstr(2.0*self.complement_vars[objs] - 1.0*self.object_vars[self.objects[objs[0]]] - 1.0*self.object_vars[self.objects[objs[1]]], sense=gb.GRB.EQUAL, rhs=0.0,name='complement'+str(objs))
         # add objective
         self.prob.setObjective(self.object_vars.prod({objects[i]:v for i,v in enumerate(value)}) + self.complement_vars.prod(complement_coeffs), gb.GRB.MAXIMIZE)
-        # add scheduling constraint? how to handle????????????????????
 
     def demand(self, prices):
         for i, p in enumerate(prices):
