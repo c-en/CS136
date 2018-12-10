@@ -3,7 +3,6 @@ import random
 import time
 import numpy as np
 
-
 class AgentLinear:
     def __init__(self, objects, value, complements, capacity, budget):
         self.objects = objects

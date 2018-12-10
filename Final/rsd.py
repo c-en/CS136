@@ -1,8 +1,7 @@
 import marketLinear
 import random
-import itertools
 import numpy as np
-import test
+import gen_test
 
 def rsd(agents, objects, availabilities, values, complements, capacities):
     # randomly order agents to select their bundles
@@ -37,5 +36,5 @@ def rsd(agents, objects, availabilities, values, complements, capacities):
     return np.array(allocation)
 
 if __name__ == "__main__":
-    input_dict = test.gen_input()
+    input_dict = gen_test.gen_input()
     print rsd(input_dict["workers"], input_dict["shifts"], input_dict["availabilities"], input_dict["worker_values"], input_dict["worker_complements"], input_dict["worker_capacities"])

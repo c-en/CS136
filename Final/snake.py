@@ -1,8 +1,7 @@
 import marketLinear
-import itertools
 import numpy as np
 import random
-import test
+import gen_test
 
 def snake(agents, objects, availabilities, values, complements, capacities):
     # randomly order agents
@@ -56,5 +55,5 @@ def snake(agents, objects, availabilities, values, complements, capacities):
     return allocation
 
 if __name__ == "__main__":
-    input_dict = test.gen_input()
+    input_dict = gen_test.gen_input()
     print snake(input_dict["workers"], input_dict["shifts"], input_dict["availabilities"], input_dict["worker_values"], input_dict["worker_complements"], input_dict["worker_capacities"])

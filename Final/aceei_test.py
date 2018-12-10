@@ -1,16 +1,13 @@
-import itertools
 import aceei
 import numpy as np
 import marketLinear
 import csv
 import matplotlib.pyplot as plt
-import test
+import gen_test
 
+# run the A-CEEI mechanism on randomly generated input
 def run_aceei():
-    input_dict = test.gen_input()
-    #print(worker_complements[0])
-    # with open("output/prefs.csv", 'w') as f:
-    #     np.savetxt(f, worker_values, fmt='%i', delimiter=",")
+    input_dict = gen_test.gen_input()
 
     # initialize MarketLinear object
     print "MarketLinear init"
@@ -20,9 +17,11 @@ def run_aceei():
     print "tabu init"
     return aceei.tabu(workers, shifts, availabilities, Market)
 
+# create step plot of clearing error over time
 if __name__ == "__main__":
     times_arr = []
     err_arr = []
+    # run A-CEEI
     num_trials = 10
     for i in range(num_trials):
        allocation, times, besterrors = run_aceei()
@@ -38,6 +37,7 @@ if __name__ == "__main__":
         for row in err_arr:
             writer.writerow(row)
 
+    # make plot
     for i in range(num_trials):
         plt.step(times_arr[i], err_arr[i])
 
