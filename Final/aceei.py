@@ -4,11 +4,10 @@ import csv
 import numpy as np
 import time
 
-# 8 hours, max iters per restart t = 100: best error 1367
-# 2 hours, t = 100: best error 1676
-# 1 hour, t=100: 4258
-
+# maximum runtime for tabu (seconds)
 maxTime = 10*60
+
+# parameter for the range of gradient neighbors to calculate
 GradientNeighbors = np.linspace(0.05, 0.5, num=10)
 
 def vector_error(demand, avail):
@@ -60,13 +59,14 @@ def N(p, curDemand, avail, Market):
     neighbors.sort(key = lambda x: x[2])
     return zip(*neighbors)
   
-
+# performs Tabu Search for A-CEEI
 # agents: list of agents (standard)
 # objects: list of objects to be allocated (standard)
 # avail: availability of each object (standard) - format [[array of lower bound],[array of upper bound]]
 # Market: object with methods demand and allocation
 # demand: takes in price vector, returns total demand
 # allocation: takes in price vector, returns full allocation
+# returns the final allocation, and arrays for time and besterror after each random restart
 def tabu(agents, objects, avail, Market):
     times = []
     besterrors = []

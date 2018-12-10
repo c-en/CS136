@@ -1,21 +1,21 @@
 import aceei
 import numpy as np
-import marketLinear
+import market_linear
 import csv
 import matplotlib.pyplot as plt
 import gen_test
 
-# run the A-CEEI mechanism on randomly generated input
+# runs the A-CEEI mechanism on randomly generated input
 def run_aceei():
     input_dict = gen_test.gen_input()
 
     # initialize MarketLinear object
     print "MarketLinear init"
-    Market = marketLinear.MarketLinear(input_dict["shifts"], input_dict["workers"], input_dict["worker_values"], input_dict["worker_complements"], input_dict["worker_capacities"])
+    Market = market_linear.MarketLinear(input_dict["shifts"], input_dict["workers"], input_dict["worker_values"], input_dict["worker_complements"], input_dict["worker_capacities"])
 
     # initialize tabu search, return allocation
     print "tabu init"
-    return aceei.tabu(workers, shifts, availabilities, Market)
+    return aceei.tabu(input_dict["workers"], input_dict["shifts"], input_dict["availabilities"], Market)
 
 # create step plot of clearing error over time
 if __name__ == "__main__":

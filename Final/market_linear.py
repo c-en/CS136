@@ -3,7 +3,12 @@ import random
 import time
 import numpy as np
 
+# generates a given agent's demand MIP
 class AgentLinear:
+    # objects: array of objects to be allocated
+    # value: linear values of objects for this agent (length |object| array)
+    # capacity: allocation capacity of this agent (integer)
+    # budget: budget for this agent (float)
     def __init__(self, objects, value, complements, capacity, budget):
         self.objects = objects
         # initialize MIP
@@ -29,19 +34,22 @@ class AgentLinear:
         # add objective
         self.prob.setObjective(self.object_vars.prod({objects[i]:v for i,v in enumerate(value)}) + self.complement_vars.prod(complement_coeffs), gb.GRB.MAXIMIZE)
 
+    # get this agent's demand when faced with a given price vector
     def demand(self, prices):
+        # set MIP bugdet constraint to reflect to given prices
         for i, p in enumerate(prices):
             self.prob.chgCoeff(self.budgetConstraint, self.object_vars[self.objects[i]], p)
         self.prob.optimize()
         return np.array([self.object_vars[v].x for v in self.object_vars])
 
-    # do we need stage2 or stage3(!) demand??????
-
+# generates a set of agent demand MIPs for a given market
 class MarketLinear:
     # objects: array of objects to be allocated
     # agents: agents in the market; MUST BE SORTED (or shuffled) IN ORDER OF INCREASING BUDGET
     # values: linear values of objects for each agent (|agent| by |object| array)
+    # complements: matrix of values for each agent for having 2 objects simultaneously (|agent| by |object| by |object|)
     # capacities: allocation capacity of each agent (|agent| length array)
+    # note: budgets are distributed linearly, with first agent lowest - order agents as desired before initializing
     def __init__(self, objects, agents, values, complements, capacities):
         self.agent_names = agents
         self.agent_models = []
@@ -65,7 +73,7 @@ class MarketLinear:
     def agents(self):
         return self.agent_models
 
-def main():
+def test():
     objects = ['A','B','C']
     value = [1,1,4]
     complements = [[0,3,0],[0,0,0],[0,0,0]]
@@ -75,4 +83,4 @@ def main():
     print agent.demand([50,50,50])
 
 if __name__ == '__main__':
-    main()
+    test()

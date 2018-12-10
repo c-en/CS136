@@ -5,9 +5,12 @@ import gen_test
 import snake
 import rsd
 import aceei
-import marketLinear
+import market_linear
 
-# calculate the total value for an agent given their allocation, value, and complementary values
+# calculates the total value for an agent given their allocation, value, and complementary values
+# allocation: 1D array of an agent's allocation
+# value: 1D array of agent's value for each shift
+# complement_val: 2D array of complement values for an agent
 def calc_value(allocation, value, complement_val):
 	# first calculate the value from complements, add to total if the complement is satisfied
 	total_complement_val = 0
@@ -18,7 +21,8 @@ def calc_value(allocation, value, complement_val):
 	# then add total value from individual allocations
 	return np.sum(allocation * value) + total_complement_val
 
-# run the tests comparing the individual welfares of each agent for all three mechanisms
+# runs the tests comparing the individual welfares of each agent for all three mechanisms
+# num_tests: number of tests to run
 def run_welfare_tests(num_tests):
 	snake_vals = []
 	rsd_vals = []
@@ -35,7 +39,7 @@ def run_welfare_tests(num_tests):
 		rsd_alloc = rsd.rsd(input_dict['workers'], input_dict["shifts"], input_dict["availabilities"], input_dict["worker_values"], input_dict["worker_complements"], input_dict["worker_capacities"])
 
 		# find allocation from A-CEEI mechanism
-		Market = marketLinear.MarketLinear(input_dict["shifts"], input_dict["workers"], input_dict["worker_values"], input_dict["worker_complements"], input_dict["worker_capacities"])
+		Market = market_linear.MarketLinear(input_dict["shifts"], input_dict["workers"], input_dict["worker_values"], input_dict["worker_complements"], input_dict["worker_capacities"])
 		# initialize tabu search, return allocation
 		(aceei_alloc, _, _) =  aceei.tabu(input_dict["workers"], input_dict["shifts"], input_dict["availabilities"], Market)
 		
@@ -47,7 +51,11 @@ def run_welfare_tests(num_tests):
 
 	return snake_vals, rsd_vals, aceei_vals
 
-# collect results and visualize
+# collects results and visualizes them
+# snake_vals: array of values for all agents in snake draft
+# rsd_vals: array of values for all agents in RSD 
+# aceei_vals: array of values for all agents in A-CEEI
+# num_tests: number of tests to run
 def viz_welfare_results(snake_vals, rsd_vals, aceei_vals, num_tests):
 	print "Average Snake value: " + str(np.mean(snake_vals))
 	print "Average RSD Value: " + str(np.mean(rsd_vals))
@@ -67,6 +75,6 @@ def viz_welfare_results(snake_vals, rsd_vals, aceei_vals, num_tests):
 
 if __name__ == "__main__":
 	# number of trials 
-	num_tests = 2
+	num_tests = 1
 	snake_res, rsd_res, aceei_res = run_welfare_tests(num_tests)
 	viz_welfare_results(snake_res, rsd_res, aceei_res, num_tests)
